@@ -3,7 +3,9 @@ from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.schemas.chat import ChatMessageRequest, ChatResponse, ToolCallSchema
 from app.ai.providers.gemini import GeminiProvider
+from app.ai.providers.deterministic import DeterministicProvider
 from app.ai.context.builder import ContextBuilder
+from app.config.config import settings
 from app.ai.prompt.builder import PromptBuilder
 from app.ai.tools.definitions import get_tool_definitions
 from app.ai.tools.executor import ToolExecutor
@@ -37,7 +39,7 @@ def process_chat(request: ChatMessageRequest, db: Session = Depends(get_db)):
         messages.append({"role": "user", "content": request.message})
         
         # 4. Call LLM
-        provider = GeminiProvider()
+        provider = GeminiProvider() if getattr(settings, "AI_PROVIDER", "LIVE_AI") == "LIVE_AI" else DeterministicProvider()
         tools = get_tool_definitions()
         
         llm_response = provider.generate_completion(messages=messages, tools=tools)

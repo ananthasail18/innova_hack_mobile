@@ -125,7 +125,8 @@ class TasteDNALearningService:
         user_id: str,
         event_type: str,
         dimension_deltas: Dict[str, float],
-        event_description: str
+        event_description: str,
+        commit: bool = True
     ) -> TasteProfile:
         """
         Gradual learning engine:
@@ -205,8 +206,11 @@ class TasteDNALearningService:
         matrix.recent_evolution = matrix.recent_evolution[:10]  # keep top 10 timeline entries
 
         profile.dna_matrix_json = matrix.model_dump()
-        self.db.commit()
-        self.db.refresh(profile)
+        if commit:
+            self.db.commit()
+            self.db.refresh(profile)
+        else:
+            self.db.flush()
 
         self.recalibrate_community_signals(user_id)
         return profile

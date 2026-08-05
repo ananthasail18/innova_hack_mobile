@@ -42,9 +42,10 @@ innova_hack/
     │   ├── components/         # Reusable UI & Feature Components
     │   ├── layouts/            # Page Layout Templates
     │   ├── hooks/              # Context Providers & Custom Hooks
-    │   ├── services/           # Axios Client, React Query Hooks, TypeScript Types
+    │   ├── services/           # Axios Client, React Query Hooks, TypeScript Types, LocalRecommendationEngine
     │   ├── utils/              # Helper Utilities
     │   └── styles/             # Tailwind CSS & Global Stylesheets
+    └── capacitor.config.ts     # Capacitor configuration
 ```
 
 ---
@@ -73,10 +74,11 @@ graph TD
 
 ---
 
-## Frontend Architecture
+## Frontend Architecture (Android App via Capacitor)
 
-The frontend is built with React 18, Vite, and TypeScript using a modular layer pattern:
+The frontend is built with React 19, Vite 8, and TypeScript using a modular layer pattern compiled to Android via Capacitor:
 - **State Management**: React Context API (`CartContext`, `SessionContext`, `ThemeContext`) for local state and TanStack React Query for async server state.
+- **Offline Resilience**: `LocalRecommendationEngine` provides a deterministic fallback when offline, utilizing the cached Taste Passport.
 - **Styling System**: Tailwind CSS v4 configured with a custom dark theme (`#0A0A0A` background, `#171717` cards, `#F97316` primary accents).
 - **Responsive Layout**: High-density grid component (`DishGrid`) scaling up to **7 columns per row** (`2xl:grid-cols-7`) on desktop viewports.
 

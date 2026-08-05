@@ -23,7 +23,7 @@ Traditional restaurant menus present static lists of dishes without accounting f
 
 **TasteAI** solves this by capturing a diner's **Taste Identity** through a quick 8-question quiz, constructing an **8-dimensional preference vector**. The backend recommendation service computes mathematical vector distances against the restaurant's menu catalog to deliver **instant, highly relevant, and explainable recommendations**.
 
-Additionally, diners can converse with an **AI Dining Assistant** built on Google Gemini that understands their profile, current page context, and cart items, offering dish recommendations and dynamically navigating the UI.
+Additionally, diners can converse with an **AI Dining Assistant** built on Google Gemini that understands their profile, current page context, and cart items, offering dish recommendations and dynamically navigating the UI. If offline, the app falls back to a deterministic offline `LocalRecommendationEngine` using the cached Taste Passport.
 
 ---
 
@@ -34,7 +34,7 @@ Additionally, diners can converse with an **AI Dining Assistant** built on Googl
 - **🤖 AI Dining Waiter (Google Gemini)**: Conversational assistant capable of answering dish queries and dispatching interactive UI actions (`NAVIGATE`, `HIGHLIGHT_DISH`, `ADD_TO_CART`).
 - **📱 High-Density Desktop Menu**: Clean responsive grid scaling up to **7 items per row** on desktop viewports.
 - **📖 Deep Dish Transparency**: Displays ingredients in wrapped pill badges, allergen warnings, dietary badges, chef's notes, and dish flavor vector progress bars.
-- **💰 Real-Time Cart & Currency**: Standardized global pricing in Indian Rupees (`₹`) with subtotal and tax calculations.
+- **Simulated Marketplace**: Includes a marketplace sandbox tab to demonstrate partner integration logic without actual Swiggy/Zomato dependencies.
 
 ---
 
@@ -63,10 +63,12 @@ Additionally, diners can converse with an **AI Dining Assistant** built on Googl
 - **LLM Integration**: Google Gemini API via OpenAI client compatibility interface
 - **Testing**: Pytest & `pytest-asyncio`
 
-### Frontend
-- **Framework**: React 18 + Vite 6 + TypeScript 5
+### Frontend (Android App via Capacitor)
+- **Framework**: React 19 + Vite 8 + TypeScript 5
 - **Styling**: Tailwind CSS v4 (Custom dark mode palette `#0A0A0A` / `#171717` / `#F97316`)
 - **State & Async**: React Context API & TanStack React Query v5
+- **Icons**: Lucide React
+- **Mobile**: Capacitor core & android for native compilation
 - **Icons**: Lucide React
 
 ---
@@ -187,6 +189,21 @@ npm run dev
 ```
 
 Visit **`http://localhost:5173`** in your browser.
+
+---
+
+### 4. Android Build (APK)
+
+TasteAI compiles to a native Android app using Capacitor.
+
+```bash
+# From the frontend directory
+npm run build
+npx cap sync android
+cd android
+./gradlew assembleDebug
+```
+The resulting APK will be in `frontend/android/app/build/outputs/apk/debug/app-debug.apk`.
 
 ---
 

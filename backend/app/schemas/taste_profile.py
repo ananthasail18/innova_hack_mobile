@@ -8,7 +8,7 @@ class TasteProfileBase(BaseModel):
     creaminess_preference: float = Field(0.5, ge=0.0, le=1.0)
     tanginess_preference: float = Field(0.5, ge=0.0, le=1.0)
     masala_intensity_preference: float = Field(0.5, ge=0.0, le=1.0)
-    crunch_preference: float = Field(0.5, ge=0.0, le=1.0)
+    crunchiness_preference: float = Field(0.5, ge=0.0, le=1.0)
     oiliness_preference: float = Field(0.5, ge=0.0, le=1.0)
     saltiness_preference: float = Field(0.5, ge=0.0, le=1.0)
 

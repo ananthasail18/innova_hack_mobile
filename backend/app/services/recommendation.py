@@ -8,6 +8,7 @@ from app.models.restaurant import Restaurant
 from app.models.community_signal import CommunitySignal
 from app.schemas.recommendation import DishRecommendation, RecommendationReason, RecommendationResponse
 from app.schemas.dish import DishOut
+from app.schemas.ai import RecommendationIntent
 
 def cosine_similarity(v1: List[float], v2: List[float]) -> float:
     if len(v1) != len(v2):
@@ -30,7 +31,7 @@ class RecommendationService:
             float(obj.creaminess_preference if hasattr(obj, 'creaminess_preference') else obj.creaminess_level),
             float(obj.tanginess_preference if hasattr(obj, 'tanginess_preference') else obj.tanginess_level),
             float(obj.masala_intensity_preference if hasattr(obj, 'masala_intensity_preference') else obj.masala_intensity_level),
-            float(obj.crunch_preference if hasattr(obj, 'crunch_preference') else obj.crunchiness_level),
+            float(obj.crunchiness_preference if hasattr(obj, 'crunchiness_preference') else obj.crunchiness_level),
             float(obj.oiliness_preference if hasattr(obj, 'oiliness_preference') else obj.oiliness_level),
             float(obj.saltiness_preference if hasattr(obj, 'saltiness_preference') else obj.saltiness_level)
         ]
@@ -72,7 +73,7 @@ class RecommendationService:
             
         return score_sum / weight_sum
 
-    def get_recommendations(self, user_id: str, restaurant_id: str = None) -> RecommendationResponse:
+    def get_recommendations(self, user_id: str, restaurant_id: str = None, intent: RecommendationIntent = None) -> RecommendationResponse:
         user_profile = self.db.query(TasteProfile).filter(TasteProfile.user_id == user_id).first()
         if not user_profile:
             # Fallback to neutral vector if no profile
@@ -86,6 +87,26 @@ class RecommendationService:
         if restaurant_id:
             query = query.filter(Dish.restaurant_id == restaurant_id)
         dishes = query.all()
+        
+        # Enforce hard constraints from intent
+        if intent:
+            filtered_dishes = []
+            for dish in dishes:
+                # Budget constraint
+                if intent.budget and float(dish.price) > intent.budget:
+                    continue
+                # Allergen constraint
+                if intent.allergens:
+                    dish_allergens = [a.lower() for a in (dish.allergens or [])]
+                    if any(a.lower() in dish_allergens for a in intent.allergens):
+                        continue
+                # Exclusions constraint
+                if intent.excluded_ingredients:
+                    dish_ingredients = [i.lower() for i in (dish.ingredients or [])]
+                    if any(ex.lower() in dish_ingredients for ex in intent.excluded_ingredients):
+                        continue
+                filtered_dishes.append(dish)
+            dishes = filtered_dishes
         
         recommendations = []
         for dish in dishes:
