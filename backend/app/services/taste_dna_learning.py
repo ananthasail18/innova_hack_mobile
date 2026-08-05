@@ -25,7 +25,7 @@ DIMENSION_MAP = {
     "creaminess": "creaminess_preference",
     "tanginess": "tanginess_preference",
     "masala_intensity": "masala_intensity_preference",
-    "crunchiness": "crunch_preference",
+    "crunchiness": "crunchiness_preference",
     "oiliness": "oiliness_preference",
     "saltiness": "saltiness_preference"
 }
@@ -44,7 +44,7 @@ class TasteDNALearningService:
                 creaminess_preference=0.5,
                 tanginess_preference=0.5,
                 masala_intensity_preference=0.5,
-                crunch_preference=0.5,
+                crunchiness_preference=0.5,
                 oiliness_preference=0.5,
                 saltiness_preference=0.5,
                 confidence_score=0.55,

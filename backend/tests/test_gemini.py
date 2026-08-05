@@ -10,7 +10,7 @@ def test_missing_gemini_key():
         provider = GeminiProvider()
         # Even with missing key, fallback engine should guarantee valid response
         result = provider.generate_completion(messages=[{"role": "user", "content": "hello"}])
-        assert "Hello!" in result["content"] or "recommend" in result["content"]
+        assert "enable the AI Dining Assistant" in result["content"]
 
 def test_invalid_gemini_key():
     with patch.object(settings, 'GEMINI_API_KEY', "invalid_key"):
