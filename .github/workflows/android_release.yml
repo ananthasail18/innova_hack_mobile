@@ -2,29 +2,40 @@ name: Android Release Build
 
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
+      - feature/p0-android-competition
   pull_request:
-    branches: [ main, master ]
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        node-version: '18'
-        cache: 'npm'
+        node-version: 20
+        cache: npm
         cache-dependency-path: frontend/package-lock.json
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
+        cache: gradle
 
     - name: Install dependencies
       working-directory: frontend
-      run: npm install
+      run: npm ci
 
-    - name: Build Frontend
+    - name: Build frontend
       working-directory: frontend
       run: npm run build
 
@@ -32,23 +43,17 @@ jobs:
       working-directory: frontend
       run: npx cap sync android
 
-    - name: set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
-
-    - name: Grant execute permission for gradlew
+    - name: Make Gradle executable
       working-directory: frontend/android
       run: chmod +x gradlew
 
-    - name: Build Debug APK
+    - name: Assemble debug APK
       working-directory: frontend/android
-      run: ./gradlew assembleDebug
+      run: ./gradlew assembleDebug --stacktrace
 
     - name: Upload APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: tasteai-app-debug
+        name: tasteai-debug-apk
         path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
+        if-no-files-found: error
