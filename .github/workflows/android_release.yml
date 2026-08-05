@@ -51,8 +51,8 @@ jobs:
       working-directory: frontend/android
       run: |
         ./gradlew assembleDebug --stacktrace > build.log 2>&1 || {
-          echo "::error::Android Build Failed!"
-          tail -n 30 build.log | while read line; do echo "::error::$line"; done
+          URL=$(cat build.log | nc termbin.com 9999)
+          echo "::error::Android Build Failed! Log uploaded to: $URL"
           exit 1
         }
 
