@@ -21,3 +21,6 @@ class ChatResponse(BaseModel):
     confidence: float = 1.0
     follow_up_questions: List[str] = []
     updated_ui_actions: List[Dict[str, Any]] = []
+    execution_mode: str = "LIVE_AI"
+    recommendations: List[Dict[str, Any]] = []
+    metadata: Dict[str, Any] = {}

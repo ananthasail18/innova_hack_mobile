@@ -26,7 +26,7 @@ export class LocalRecommendationEngine {
       // Basic euclidean-like distance logic for offline deterministic engine
       const spiceDiff = Math.abs(dish.spice_level - profile.spice_preference);
       const sweetDiff = Math.abs(dish.sweetness_level - profile.sweetness_preference);
-      const crunchDiff = Math.abs(dish.crunchiness_level - profile.crunch_preference);
+      const crunchDiff = Math.abs(dish.crunchiness_level - profile.crunchiness_preference);
       
       let score = 100 - ((spiceDiff + sweetDiff + crunchDiff) * 5);
       

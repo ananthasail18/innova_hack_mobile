@@ -70,13 +70,28 @@ def process_chat(request: ChatMessageRequest, db: Session = Depends(get_db)):
             updated_ui_actions = executor.execute(tool_calls)
             
         # 6. Format Response
+        execution_mode = "LIVE_AI"
+        if isinstance(provider, DeterministicProvider) or getattr(provider, 'api_key', '') == 'DUMMY_KEY_FOR_TESTS':
+            execution_mode = "SERVER_DETERMINISTIC"
+
+        recs = []
+        # If deterministic, manually run RecommendationService
+        if execution_mode == "SERVER_DETERMINISTIC":
+            from app.services.recommendation import RecommendationService
+            rec_service = RecommendationService(db)
+            rec_resp = rec_service.get_recommendations(request.user_id, request.restaurant_id)
+            recs = [r.model_dump() for r in rec_resp.recommendations]
+
         response_data = ChatResponse(
             message=llm_response.get("content"),
             tool_calls=tool_calls,
-            updated_ui_actions=updated_ui_actions
+            updated_ui_actions=updated_ui_actions,
+            execution_mode=execution_mode,
+            recommendations=recs,
+            metadata={"source": execution_mode}
         )
         
-        return {"status": "success", "data": response_data.model_dump()}
+        return {"status": "success", "data": response_data.model_dump(), "execution_mode": execution_mode, "recommendations": recs, "metadata": {"source": execution_mode}}
 
     except Exception as e:
         print("CHAT ROUTE EXCEPTION DETECTED:", type(e), e, flush=True)
