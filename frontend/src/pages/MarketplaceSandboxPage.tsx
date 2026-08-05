@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ZomatoDishBadge } from '@/components/ZomatoDishBadge';
+import { ZomatoDishBadge } from '@/components/ZomatoDishBadge'; // We can leave this component name or rename it later
 import { 
   Sparkles, 
   ArrowLeft, 
@@ -11,14 +11,14 @@ import {
   CheckCircle, 
   Flame, 
   Plus, 
-  Tag, 
-  ThumbsUp
+  ThumbsUp,
+  AlertTriangle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/hooks/useCart';
 import type { Dish } from '@/services/types';
 
-interface ZomatoClonedDish {
+interface SandboxDish {
   id: string;
   name: string;
   price: number;
@@ -33,14 +33,9 @@ interface ZomatoClonedDish {
   rating: number;
 }
 
-const ZOMATO_OFFERS = [
-  { code: "PAYTMBASH", title: "50% OFF up to ₹80 + ₹75 Cashback", subtitle: "Use code PAYTMBASH" },
-  { code: "ICICINB", title: "Flat ₹125 Instant Discount", subtitle: "Use code ICICINB" },
-];
-
-const CLONED_ZOMATO_DISHES: ZomatoClonedDish[] = [
+const CLONED_MARKETPLACE_DISHES: SandboxDish[] = [
   {
-    id: 'zomato-1',
+    id: 'mp-1',
     name: 'Spicy Garlic Butter Noodles',
     price: 345,
     description: 'Wok-tossed fresh noodles infused with roasted garlic butter, red chili oil, scallions, and toasted sesame.',
@@ -54,7 +49,7 @@ const CLONED_ZOMATO_DISHES: ZomatoClonedDish[] = [
     rating: 4.8,
   },
   {
-    id: 'zomato-2',
+    id: 'mp-2',
     name: 'Cheesy Gourmet Burger & Fries',
     price: 420,
     description: 'Double melted cheddar patty topped with caramelized onions, crisp pickles, and special house sauce.',
@@ -68,7 +63,7 @@ const CLONED_ZOMATO_DISHES: ZomatoClonedDish[] = [
     rating: 4.7,
   },
   {
-    id: 'zomato-3',
+    id: 'mp-3',
     name: 'Crispy Paneer Pepper Fry',
     price: 310,
     description: 'Golden paneer cubes wok-tossed with crushed Tellicherry black pepper, curry leaves, and green chilies.',
@@ -82,7 +77,7 @@ const CLONED_ZOMATO_DISHES: ZomatoClonedDish[] = [
     rating: 4.6,
   },
   {
-    id: 'zomato-4',
+    id: 'mp-4',
     name: 'Classic Butter Chicken & Naan',
     price: 450,
     description: 'Slow-cooked tandoori chicken pieces simmered in rich velvety tomato butter gravy with garlic naan.',
@@ -96,7 +91,7 @@ const CLONED_ZOMATO_DISHES: ZomatoClonedDish[] = [
     rating: 4.9,
   },
   {
-    id: 'zomato-5',
+    id: 'mp-5',
     name: 'Sizzling Chocolate Brownie Sundae',
     price: 260,
     description: 'Warm fudge brownie served on a sizzling hot plate topped with vanilla bean ice cream and chocolate drizzle.',
@@ -111,7 +106,7 @@ const CLONED_ZOMATO_DISHES: ZomatoClonedDish[] = [
   },
 ];
 
-export const ZomatoOverlayPage: React.FC = () => {
+export const MarketplaceSandboxPage: React.FC = () => {
   const navigate = useNavigate();
   const { addItem, totalItems } = useCart();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -120,23 +115,23 @@ export const ZomatoOverlayPage: React.FC = () => {
 
   const categories = ['All', 'Indo-Chinese', 'Burgers', 'Starters', 'Main Course', 'Desserts'];
 
-  const filteredDishes = CLONED_ZOMATO_DISHES.filter((dish) => {
+  const filteredDishes = CLONED_MARKETPLACE_DISHES.filter((dish) => {
     const matchesCategory = selectedCategory === 'All' || dish.category === selectedCategory;
     const matchesSearch = dish.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           dish.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
-  const handleAddToCart = (zDish: ZomatoClonedDish) => {
+  const handleAddToCart = (mDish: SandboxDish) => {
     const compliantDish: Dish = {
-      id: zDish.id,
+      id: mDish.id,
       restaurant_id: 'r1',
       category_id: 'c1',
-      name: zDish.name,
-      description: zDish.description,
-      price: zDish.price,
-      image_url: zDish.image,
-      is_vegetarian: zDish.isVeg,
+      name: mDish.name,
+      description: mDish.description,
+      price: mDish.price,
+      image_url: mDish.image,
+      is_vegetarian: mDish.isVeg,
       is_available: true,
       display_order: 1,
       spice_level: 5,
@@ -159,16 +154,22 @@ export const ZomatoOverlayPage: React.FC = () => {
     };
 
     addItem(compliantDish, 1);
-    setAddedItemIds((prev) => ({ ...prev, [zDish.id]: true }));
+    setAddedItemIds((prev) => ({ ...prev, [mDish.id]: true }));
     setTimeout(() => {
-      setAddedItemIds((prev) => ({ ...prev, [zDish.id]: false }));
+      setAddedItemIds((prev) => ({ ...prev, [mDish.id]: false }));
     }, 1500);
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 font-sans pb-28 selection:bg-red-600/30">
+    <div className="min-h-screen bg-neutral-950 text-neutral-100 font-sans pb-28 selection:bg-indigo-600/30">
       
-      {/* Authentic Zomato + TasteAI Top Navigation Header */}
+      {/* Banner */}
+      <div className="bg-indigo-600 text-white text-xs font-bold px-2 py-1.5 flex items-center justify-center gap-2">
+        <AlertTriangle className="w-4 h-4" />
+        <span>Simulated marketplace integration sandbox</span>
+      </div>
+
+      {/* Header */}
       <header className="sticky top-0 z-30 bg-neutral-900/95 backdrop-blur-xl border-b border-neutral-800 px-3.5 py-2.5 shadow-xl flex items-center justify-between">
         <div className="flex items-center gap-2">
           <button 
@@ -178,17 +179,15 @@ export const ZomatoOverlayPage: React.FC = () => {
             <ArrowLeft className="w-4 h-4" />
           </button>
           
-          {/* Zomato Red Brand Tag */}
           <div className="flex items-center gap-1.5">
-            <span className="text-red-500 font-black text-base tracking-tighter italic">zomato</span>
-            <span className="text-[10px] bg-red-600/20 text-red-400 border border-red-500/30 px-1.5 py-0.2 rounded font-extrabold">GOLD</span>
+            <span className="text-indigo-400 font-black text-base tracking-tighter">MARKETPLACE</span>
           </div>
         </div>
 
         {/* TasteAI Active Overlay Badge */}
-        <div className="flex items-center gap-1.5 bg-gradient-to-r from-red-600 via-orange-600 to-amber-600 px-2.5 py-1 rounded-full text-white text-[10px] font-black shadow-md shadow-red-950/50 animate-pulse">
+        <div className="flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 px-2.5 py-1 rounded-full text-white text-[10px] font-black shadow-md shadow-indigo-950/50 animate-pulse">
           <Sparkles className="w-3 h-3 text-yellow-300 fill-yellow-300" />
-          <span>TasteAI Overlay Active</span>
+          <span>TasteAI Active</span>
         </div>
 
         {/* Cart Shortcut */}
@@ -198,20 +197,20 @@ export const ZomatoOverlayPage: React.FC = () => {
         >
           <ShoppingCart className="w-5 h-5" />
           {totalItems > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full min-w-[16px] text-center shadow-md">
+            <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full min-w-[16px] text-center shadow-md">
               {totalItems}
             </span>
           )}
         </button>
       </header>
 
-      {/* Zomato Partner Restaurant Header Banner */}
+      {/* Partner Restaurant Header Banner */}
       <section className="bg-gradient-to-b from-neutral-900 via-neutral-900/90 to-neutral-950 border-b border-neutral-800/80 px-4 pt-4 pb-5">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="bg-red-600 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-wider shadow-sm">
-                ZOMATO GOLD PARTNER
+              <span className="bg-indigo-600 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-wider shadow-sm">
+                PREMIUM PARTNER
               </span>
               <span className="text-xs text-neutral-400 font-medium">• Koramangala 5th Block</span>
             </div>
@@ -232,12 +231,12 @@ export const ZomatoOverlayPage: React.FC = () => {
           </div>
 
           {/* Taste DNA Active Profile Card */}
-          <div className="bg-neutral-900/90 border border-orange-500/30 rounded-2xl p-3.5 flex items-center gap-3 shadow-lg backdrop-blur-md">
-            <div className="p-2.5 bg-gradient-to-br from-red-600 to-orange-600 rounded-xl text-white shadow-md">
+          <div className="bg-neutral-900/90 border border-indigo-500/30 rounded-2xl p-3.5 flex items-center gap-3 shadow-lg backdrop-blur-md">
+            <div className="p-2.5 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl text-white shadow-md">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-orange-400 font-bold">Matching Diner DNA</div>
+              <div className="text-[10px] uppercase tracking-wider text-indigo-400 font-bold">Matching Diner DNA</div>
               <div className="text-sm font-black text-white">Ananth's 8D Taste Vector</div>
               <div className="text-[10px] text-neutral-400 mt-0.5">High Spice • High Crunch • Creamy Gravy</div>
             </div>
@@ -245,33 +244,13 @@ export const ZomatoOverlayPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Zomato Promotional Coupon Offers Ticker */}
-      <section className="max-w-4xl mx-auto px-4 py-3">
-        <div className="flex items-center gap-3 overflow-x-auto pb-1 no-scrollbar">
-          {ZOMATO_OFFERS.map((offer, idx) => (
-            <div 
-              key={idx} 
-              className="bg-neutral-900/90 border border-red-500/30 rounded-xl px-3.5 py-2 shrink-0 flex items-center gap-2.5 shadow-md"
-            >
-              <div className="p-1.5 bg-red-600/20 text-red-400 rounded-lg">
-                <Tag className="w-4 h-4" />
-              </div>
-              <div>
-                <div className="text-xs font-bold text-white leading-tight">{offer.title}</div>
-                <div className="text-[10px] text-neutral-400 leading-tight">{offer.subtitle}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* Category Tabs & Search Bar */}
-      <section className="max-w-4xl mx-auto px-4 py-2 space-y-3">
+      <section className="max-w-4xl mx-auto px-4 py-2 space-y-3 mt-4">
         <div className="flex items-center gap-2 bg-neutral-900/90 border border-neutral-800 rounded-xl px-3 py-2 shadow-inner">
           <Search className="w-4 h-4 text-neutral-500" />
           <input
             type="text"
-            placeholder="Search Zomato menu items..."
+            placeholder="Search menu items..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="bg-transparent text-xs text-neutral-200 placeholder-neutral-500 outline-none w-full"
@@ -286,7 +265,7 @@ export const ZomatoOverlayPage: React.FC = () => {
               onClick={() => setSelectedCategory(cat)}
               className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap transition-all ${
                 selectedCategory === cat
-                  ? 'bg-red-600 text-white shadow-md shadow-red-950 scale-105'
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-950 scale-105'
                   : 'bg-neutral-900 text-neutral-400 border border-neutral-800 hover:text-neutral-200'
               }`}
             >
@@ -296,15 +275,15 @@ export const ZomatoOverlayPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Zomato Cloned Food Item Product Cards */}
-      <main className="max-w-4xl mx-auto px-4 space-y-3.5 pt-2">
+      {/* Cloned Food Item Product Cards */}
+      <main className="max-w-4xl mx-auto px-4 space-y-3.5 pt-2 mt-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xs font-black text-neutral-400 uppercase tracking-widest flex items-center gap-1.5">
             <span>RECOMMENDED MENU ITEMS</span>
             <span className="text-[10px] text-neutral-500">({filteredDishes.length})</span>
           </h2>
-          <span className="text-[11px] text-orange-400 font-bold flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-orange-400" /> Ranked by 8D Taste DNA
+          <span className="text-[11px] text-indigo-400 font-bold flex items-center gap-1">
+            <Sparkles className="w-3 h-3 text-indigo-400" /> Ranked by 8D Taste DNA
           </span>
         </div>
 
@@ -312,9 +291,8 @@ export const ZomatoOverlayPage: React.FC = () => {
           {filteredDishes.map((dish) => (
             <div 
               key={dish.id} 
-              className="bg-neutral-900/90 border border-neutral-800/90 hover:border-red-500/40 rounded-2xl p-3.5 flex items-start justify-between gap-3 relative overflow-hidden transition-all shadow-lg backdrop-blur-sm"
+              className="bg-neutral-900/90 border border-neutral-800/90 hover:border-indigo-500/40 rounded-2xl p-3.5 flex items-start justify-between gap-3 relative overflow-hidden transition-all shadow-lg backdrop-blur-sm"
             >
-              {/* Left Side: Dish Details & Taste DNA Overlay */}
               <div className="flex-1 space-y-1.5">
                 <div className="flex items-center gap-2">
                   <span className={`w-3.5 h-3.5 border flex items-center justify-center p-0.5 rounded-sm ${dish.isVeg ? 'border-emerald-500' : 'border-red-500'}`}>
@@ -324,13 +302,12 @@ export const ZomatoOverlayPage: React.FC = () => {
                   <h3 className="font-extrabold text-sm text-neutral-100">{dish.name}</h3>
 
                   {dish.mustTry && (
-                    <span className="text-[8px] font-black bg-orange-500/20 text-orange-400 border border-orange-500/30 px-1 py-0.2 rounded uppercase">
+                    <span className="text-[8px] font-black bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-1 py-0.2 rounded uppercase">
                       MUST TRY
                     </span>
                   )}
                 </div>
 
-                {/* Rating & Votes */}
                 <div className="flex items-center gap-2 text-[11px] text-neutral-400">
                   <span className="flex items-center gap-0.5 text-amber-400 font-bold">
                     <Star className="w-3 h-3 fill-amber-400 text-amber-400" /> {dish.rating}
@@ -340,18 +317,16 @@ export const ZomatoOverlayPage: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="text-sm font-black text-red-500">₹{dish.price}</div>
+                <div className="text-sm font-black text-neutral-100">₹{dish.price}</div>
 
                 <p className="text-[11px] text-neutral-400 line-clamp-2 leading-relaxed">{dish.description}</p>
 
-                {/* Taste DNA Rationale Overlay Note */}
-                <div className="bg-neutral-950/90 border border-orange-500/30 rounded-xl p-2 text-[10px] text-neutral-300 flex items-start gap-1.5 mt-1">
-                  <Sparkles className="w-3.5 h-3.5 text-orange-400 shrink-0 mt-0.5" />
+                <div className="bg-neutral-950/90 border border-indigo-500/30 rounded-xl p-2 text-[10px] text-neutral-300 flex items-start gap-1.5 mt-1">
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-400 shrink-0 mt-0.5" />
                   <span>{dish.reason}</span>
                 </div>
               </div>
 
-              {/* Right Side: Dish Image & Zomato Add Button */}
               <div className="w-24 shrink-0 flex flex-col items-center gap-2 relative">
                 <div className="w-24 h-24 rounded-xl overflow-hidden bg-neutral-950 border border-neutral-800 relative">
                   <img 
@@ -363,19 +338,17 @@ export const ZomatoOverlayPage: React.FC = () => {
                     }}
                   />
                   
-                  {/* Top Match Badge Overlay */}
                   <div className="absolute top-1 right-1">
                     <ZomatoDishBadge matchPercentage={dish.matchScore} size="sm" />
                   </div>
                 </div>
 
-                {/* Zomato ADD Button */}
                 <button
                   onClick={() => handleAddToCart(dish)}
                   className={`w-full py-1.5 rounded-xl text-xs font-black flex items-center justify-center gap-1 transition-all shadow-md ${
                     addedItemIds[dish.id]
                       ? 'bg-emerald-600 text-white shadow-emerald-950'
-                      : 'bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white shadow-red-950 active:scale-95'
+                      : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-950 active:scale-95'
                   }`}
                 >
                   {addedItemIds[dish.id] ? (

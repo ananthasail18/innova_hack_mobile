@@ -5,3 +5,5 @@ from app.models.dish import Dish
 from app.models.user import User
 from app.models.taste_profile import TasteProfile
 from app.models.community_signal import CommunitySignal
+from app.models.taste_event import TasteEvent
+from app.models.recommendation_decision import RecommendationDecision

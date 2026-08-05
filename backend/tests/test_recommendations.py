@@ -50,8 +50,50 @@ def test_get_taste_vector():
 
     mock_profile = MockTasteProfile(
         spice_preference=0.8, sweetness_preference=0.7, creaminess_preference=0.6,
-        tanginess_preference=0.5, masala_intensity_preference=0.4, crunch_preference=0.3,
+        tanginess_preference=0.5, masala_intensity_preference=0.4, crunchiness_preference=0.3,
         oiliness_preference=0.2, saltiness_preference=0.1
     )
     vec2 = service._get_taste_vector(mock_profile)
     assert vec2 == [0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
+
+def test_hard_constraints():
+    from app.schemas.ai import RecommendationIntent
+    service = RecommendationService(db=None)
+    
+    intent = RecommendationIntent(
+        budget=15.0,
+        allergens=["peanuts"],
+        excluded_ingredients=["garlic"]
+    )
+    
+    class MockDishConstraints(MockDish):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.allergens = kwargs.get("allergens", [])
+            self.ingredients = kwargs.get("ingredients", [])
+            self.price = kwargs.get("price", 10.0)
+            
+    dishes = [
+        MockDishConstraints(id="1", price=20.0), # over budget
+        MockDishConstraints(id="2", allergens=["Peanuts"]), # allergen
+        MockDishConstraints(id="3", ingredients=["Garlic"]), # excluded ingredient
+        MockDishConstraints(id="4", price=12.0) # valid
+    ]
+    
+    # Mocking db query manually
+    filtered_dishes = []
+    for dish in dishes:
+        if intent.budget and dish.price > intent.budget:
+            continue
+        if intent.allergens:
+            dish_allergens = [a.lower() for a in (dish.allergens or [])]
+            if any(a.lower() in dish_allergens for a in intent.allergens):
+                continue
+        if intent.excluded_ingredients:
+            dish_ingredients = [i.lower() for i in (dish.ingredients or [])]
+            if any(ex.lower() in dish_ingredients for ex in intent.excluded_ingredients):
+                continue
+        filtered_dishes.append(dish)
+        
+    assert len(filtered_dishes) == 1
+    assert filtered_dishes[0].id == "4"

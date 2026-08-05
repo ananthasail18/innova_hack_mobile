@@ -3,7 +3,9 @@ from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.schemas.chat import ChatMessageRequest, ChatResponse, ToolCallSchema
 from app.ai.providers.gemini import GeminiProvider
+from app.ai.providers.deterministic import DeterministicProvider
 from app.ai.context.builder import ContextBuilder
+from app.config.config import settings
 from app.ai.prompt.builder import PromptBuilder
 from app.ai.tools.definitions import get_tool_definitions
 from app.ai.tools.executor import ToolExecutor
@@ -37,7 +39,7 @@ def process_chat(request: ChatMessageRequest, db: Session = Depends(get_db)):
         messages.append({"role": "user", "content": request.message})
         
         # 4. Call LLM
-        provider = GeminiProvider()
+        provider = GeminiProvider() if getattr(settings, "AI_PROVIDER", "LIVE_AI") == "LIVE_AI" else DeterministicProvider()
         tools = get_tool_definitions()
         
         llm_response = provider.generate_completion(messages=messages, tools=tools)
@@ -68,13 +70,28 @@ def process_chat(request: ChatMessageRequest, db: Session = Depends(get_db)):
             updated_ui_actions = executor.execute(tool_calls)
             
         # 6. Format Response
+        execution_mode = "LIVE_AI"
+        if isinstance(provider, DeterministicProvider) or getattr(provider, 'api_key', '') == 'DUMMY_KEY_FOR_TESTS':
+            execution_mode = "SERVER_DETERMINISTIC"
+
+        recs = []
+        # If deterministic, manually run RecommendationService
+        if execution_mode == "SERVER_DETERMINISTIC":
+            from app.services.recommendation import RecommendationService
+            rec_service = RecommendationService(db)
+            rec_resp = rec_service.get_recommendations(request.user_id, request.restaurant_id)
+            recs = [r.model_dump() for r in rec_resp.recommendations]
+
         response_data = ChatResponse(
             message=llm_response.get("content"),
             tool_calls=tool_calls,
-            updated_ui_actions=updated_ui_actions
+            updated_ui_actions=updated_ui_actions,
+            execution_mode=execution_mode,
+            recommendations=recs,
+            metadata={"source": execution_mode}
         )
         
-        return {"status": "success", "data": response_data.model_dump()}
+        return {"status": "success", "data": response_data.model_dump(), "execution_mode": execution_mode, "recommendations": recs, "metadata": {"source": execution_mode}}
 
     except Exception as e:
         print("CHAT ROUTE EXCEPTION DETECTED:", type(e), e, flush=True)

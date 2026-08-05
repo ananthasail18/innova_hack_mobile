@@ -15,7 +15,7 @@ class TasteProfile(Base):
     creaminess_preference = Column(Float, default=0.5)
     tanginess_preference = Column(Float, default=0.5)
     masala_intensity_preference = Column(Float, default=0.5)
-    crunch_preference = Column(Float, default=0.5)
+    crunchiness_preference = Column(Float, default=0.5)
     oiliness_preference = Column(Float, default=0.5)
     saltiness_preference = Column(Float, default=0.5)
     

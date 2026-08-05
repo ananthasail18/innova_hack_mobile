@@ -25,7 +25,7 @@ DIMENSION_MAP = {
     "creaminess": "creaminess_preference",
     "tanginess": "tanginess_preference",
     "masala_intensity": "masala_intensity_preference",
-    "crunchiness": "crunch_preference",
+    "crunchiness": "crunchiness_preference",
     "oiliness": "oiliness_preference",
     "saltiness": "saltiness_preference"
 }
@@ -44,7 +44,7 @@ class TasteDNALearningService:
                 creaminess_preference=0.5,
                 tanginess_preference=0.5,
                 masala_intensity_preference=0.5,
-                crunch_preference=0.5,
+                crunchiness_preference=0.5,
                 oiliness_preference=0.5,
                 saltiness_preference=0.5,
                 confidence_score=0.55,
@@ -125,7 +125,8 @@ class TasteDNALearningService:
         user_id: str,
         event_type: str,
         dimension_deltas: Dict[str, float],
-        event_description: str
+        event_description: str,
+        commit: bool = True
     ) -> TasteProfile:
         """
         Gradual learning engine:
@@ -205,8 +206,11 @@ class TasteDNALearningService:
         matrix.recent_evolution = matrix.recent_evolution[:10]  # keep top 10 timeline entries
 
         profile.dna_matrix_json = matrix.model_dump()
-        self.db.commit()
-        self.db.refresh(profile)
+        if commit:
+            self.db.commit()
+            self.db.refresh(profile)
+        else:
+            self.db.flush()
 
         self.recalibrate_community_signals(user_id)
         return profile

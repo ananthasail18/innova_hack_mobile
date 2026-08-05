@@ -1,0 +1,54 @@
+name: Android Release Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install dependencies
+      working-directory: frontend
+      run: npm install
+
+    - name: Build Frontend
+      working-directory: frontend
+      run: npm run build
+
+    - name: Sync Capacitor
+      working-directory: frontend
+      run: npx cap sync android
+
+    - name: set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      working-directory: frontend/android
+      run: chmod +x gradlew
+
+    - name: Build Debug APK
+      working-directory: frontend/android
+      run: ./gradlew assembleDebug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: tasteai-app-debug
+        path: frontend/android/app/build/outputs/apk/debug/app-debug.apk

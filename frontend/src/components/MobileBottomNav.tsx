@@ -1,21 +1,18 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Utensils, Sparkles, QrCode, ShoppingBag, Store } from 'lucide-react';
-import { useCart } from '@/hooks/useCart';
+import { Utensils, Sparkles, Bot, Activity } from 'lucide-react';
 
 interface MobileBottomNavProps {
   isPhoneFrame?: boolean;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ isPhoneFrame = false }) => {
-  const { totalItems } = useCart();
 
   const navItems = [
-    { to: '/restaurant', icon: Utensils, label: 'Menu' },
-    { to: '/quiz', icon: Sparkles, label: 'Taste DNA' },
-    { to: '/scanner', icon: QrCode, label: 'Scan QR' },
-    { to: '/zomato', icon: Store, label: 'Zomato AI', badgeText: 'NEW' },
-    { to: '/cart', icon: ShoppingBag, label: 'Cart', badgeCount: totalItems },
+    { to: '/restaurant', icon: Utensils, label: 'Discover' },
+    { to: '/assistant', icon: Bot, label: 'Assistant' },
+    { to: '/taste-dna', icon: Sparkles, label: 'Taste Passport' },
+    { to: '/activity', icon: Activity, label: 'Activity' },
   ];
 
   const containerPosition = isPhoneFrame 
@@ -44,20 +41,6 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ isPhoneFrame =
             >
               <div className="relative">
                 <Icon className="w-4 h-4 mb-0.5" />
-                
-                {/* Active Cart Counter Badge */}
-                {Boolean(item.badgeCount && item.badgeCount > 0) && (
-                  <span className="absolute -top-1.5 -right-2.5 bg-orange-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full min-w-[16px] text-center shadow-lg animate-pulse">
-                    {item.badgeCount}
-                  </span>
-                )}
-                
-                {/* Feature Tag Badge */}
-                {item.badgeText && !item.badgeCount && (
-                  <span className="absolute -top-1.5 -right-3 bg-gradient-to-r from-red-600 to-orange-600 text-white text-[8px] font-black px-1 rounded-full uppercase tracking-tight shadow-md">
-                    {item.badgeText}
-                  </span>
-                )}
               </div>
               <span className="tracking-tight">{item.label}</span>
             </NavLink>

@@ -1,4 +1,5 @@
 import axios, { type AxiosError, type AxiosResponse } from 'axios';
+import { LocalRecommendationEngine } from './LocalRecommendationEngine';
 
 export interface ApiResponse<T> {
   status: 'success' | 'error';
@@ -6,12 +7,6 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-/**
- * Dynamically resolves the API base URL depending on environment:
- * - Environment variable VITE_API_BASE_URL
- * - Android Emulator host (10.0.2.2)
- * - Localhost / Network IP host (port 8001)
- */
 const resolveApiBaseUrl = (): string => {
   if (import.meta.env.VITE_API_BASE_URL) {
     return import.meta.env.VITE_API_BASE_URL;
@@ -32,6 +27,7 @@ const resolveApiBaseUrl = (): string => {
 
 const apiClient = axios.create({
   baseURL: resolveApiBaseUrl(),
+  timeout: 6000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -42,6 +38,31 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
+    if (!error.response || error.code === 'ECONNABORTED') {
+      const config = error.config;
+      if (config && config.url && config.url.includes('/chat')) {
+        let intent = { query: '' };
+        if (config.data) {
+          try {
+            intent = typeof config.data === 'string' ? JSON.parse(config.data) : config.data;
+          } catch (e) {}
+        }
+        const offlineResult = LocalRecommendationEngine.getRecommendations(intent);
+        
+        return Promise.resolve({
+          data: {
+             status: 'success',
+             data: offlineResult,
+             message: 'Offline fallback'
+          },
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: config,
+        } as AxiosResponse);
+      }
+    }
+    
     console.error('API Error:', error.response?.data || error.message);
     return Promise.reject(error);
   }

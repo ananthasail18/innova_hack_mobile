@@ -46,7 +46,7 @@ class ContextBuilder:
             profile_text += f"Creamy: {user_profile.creaminess_preference:.2f}\n"
             profile_text += f"Tangy: {user_profile.tanginess_preference:.2f}\n"
             profile_text += f"Masala Intensity: {user_profile.masala_intensity_preference:.2f}\n"
-            profile_text += f"Crunchy: {user_profile.crunch_preference:.2f}\n"
+            profile_text += f"Crunchy: {user_profile.crunchiness_preference:.2f}\n"
             profile_text += f"Oiliness: {user_profile.oiliness_preference:.2f}\n"
             profile_text += f"Saltiness: {user_profile.saltiness_preference:.2f}\n"
         else:

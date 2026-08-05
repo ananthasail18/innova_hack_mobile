@@ -1,13 +1,13 @@
 import os
 from typing import List, Dict, Any, Optional
 from openai import OpenAI
-from app.ai.providers.base import LLMProvider
+from app.ai.providers.base import AssistantProvider
 from app.config.config import settings
 import logging
 
 logger = logging.getLogger(__name__)
 
-class GeminiProvider(LLMProvider):
+class GeminiProvider(AssistantProvider):
     def __init__(self):
         # We assume settings.GEMINI_API_KEY is available or os.environ has it
         api_key = getattr(settings, "GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
@@ -24,7 +24,9 @@ class GeminiProvider(LLMProvider):
         self.api_key = api_key
         self.client = OpenAI(
             base_url=base_url,
-            api_key=api_key or "DUMMY_KEY_FOR_TESTS"
+            api_key=api_key or "DUMMY_KEY_FOR_TESTS",
+            timeout=3.0,
+            max_retries=0
         )
         self.model_name = model_name
 
@@ -33,7 +35,8 @@ class GeminiProvider(LLMProvider):
         messages: List[Dict[str, Any]],
         tools: Optional[List[Dict[str, Any]]] = None,
         temperature: float = 0.7,
-        max_tokens: int = 1000
+        max_tokens: int = 1000,
+        response_format: Optional[Any] = None
     ) -> Dict[str, Any]:
         
         params = {
@@ -50,25 +53,29 @@ class GeminiProvider(LLMProvider):
         for model in models_to_try:
             params["model"] = model
             try:
-                response = self.client.chat.completions.create(**params)
-                choice = response.choices[0].message
-                
-                result = {
-                    "content": choice.content,
-                    "tool_calls": []
-                }
-                
-                if choice.tool_calls:
-                    for tc in choice.tool_calls:
-                        result["tool_calls"].append({
-                            "id": tc.id,
-                            "function": {
-                                "name": tc.function.name,
-                                "arguments": tc.function.arguments
-                            }
-                        })
-                        
-                return result
+                if response_format:
+                    response = self.client.beta.chat.completions.parse(**params, response_format=response_format)
+                    return {"parsed": response.choices[0].message.parsed}
+                else:
+                    response = self.client.chat.completions.create(**params)
+                    choice = response.choices[0].message
+                    
+                    result = {
+                        "content": choice.content,
+                        "tool_calls": []
+                    }
+                    
+                    if choice.tool_calls:
+                        for tc in choice.tool_calls:
+                            result["tool_calls"].append({
+                                "id": tc.id,
+                                "function": {
+                                    "name": tc.function.name,
+                                    "arguments": tc.function.arguments
+                                }
+                            })
+                            
+                    return result
                 
             except Exception as e:
                 logger.warning(f"GeminiProvider model {model} attempt failed: {e}")

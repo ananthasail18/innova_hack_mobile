@@ -160,3 +160,40 @@ export interface RestaurantDetail {
   recommendations?: DishRecommendation[];
 }
 
+export interface TasteEvent {
+  id: string;
+  user_id: string;
+  type: 'order' | 'feedback' | 'scan';
+  dish_id?: string;
+  restaurant_id?: string;
+  rating?: number;
+  taste_shift_vector?: any;
+  created_at: string;
+}
+
+export interface RecommendationDecision {
+  id: string;
+  user_id: string;
+  intent: string;
+  context: any;
+  recommended_dish_ids: string[];
+  taste_profile_snapshot: any;
+  created_at: string;
+}
+
+export interface RecommendationIntent {
+  query: string;
+  context?: any;
+  filters?: {
+    category?: string;
+    is_vegetarian?: boolean;
+    spice_level_max?: number;
+  };
+}
+
+export interface AssistantResult {
+  message: string;
+  recommendations: DishRecommendation[];
+  source?: 'LIVE_AI' | 'SERVER_DETERMINISTIC' | 'DEVICE_OFFLINE';
+}
+

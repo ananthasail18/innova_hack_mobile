@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createHashRouter } from 'react-router-dom';
 import { Layout } from '@/layouts/Layout';
 import { LandingPage } from '@/pages/LandingPage';
 import { QuizPage } from '@/pages/QuizPage';
@@ -6,12 +6,11 @@ import { RestaurantPage } from '@/pages/RestaurantPage';
 import { DishDetailPage } from '@/pages/DishDetailPage';
 import { TasteDNADashboard } from '@/pages/TasteDNADashboard';
 import { CartPage } from '@/pages/CartPage';
-import { QrScannerPage } from '@/pages/QrScannerPage';
-import { DemoQrPage } from '@/pages/DemoQrPage';
-import { AdminRagPage } from '@/pages/AdminRagPage';
-import { ZomatoOverlayPage } from '@/pages/ZomatoOverlayPage';
+import { MarketplaceSandboxPage } from '@/pages/MarketplaceSandboxPage';
+import { AssistantPage } from '@/pages/AssistantPage';
+import { ActivityPage } from '@/pages/ActivityPage';
 
-export const router = createBrowserRouter([
+export const router = createHashRouter([
   {
     path: '/',
     element: <Layout />,
@@ -25,10 +24,9 @@ export const router = createBrowserRouter([
       { path: 'profile', element: <TasteDNADashboard /> },
       { path: 'taste-dna', element: <TasteDNADashboard /> },
       { path: 'cart', element: <CartPage /> },
-      { path: 'scanner', element: <QrScannerPage /> },
-      { path: 'demo', element: <DemoQrPage /> },
-      { path: 'zomato', element: <ZomatoOverlayPage /> },
-      { path: 'admin/rag', element: <AdminRagPage /> },
+      { path: 'sandbox', element: <MarketplaceSandboxPage /> },
+      { path: 'assistant', element: <AssistantPage /> },
+      { path: 'activity', element: <ActivityPage /> },
     ],
   },
 ]);

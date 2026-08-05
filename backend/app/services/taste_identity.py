@@ -18,34 +18,34 @@ QUIZ_MAPPING: Dict[str, Dict[str, List[Tuple[str, float]]]] = {
         "opt_always": [("sweetness_preference", 0.4)]
     },
     "q_gobi_manchurian": {
-        "opt_mild": [("spice_preference", -0.1), ("crunch_preference", 0.1)],
-        "opt_medium": [("spice_preference", 0.1), ("crunch_preference", 0.2)],
-        "opt_spicy": [("spice_preference", 0.3), ("crunch_preference", 0.3)]
+        "opt_mild": [("spice_preference", -0.1), ("crunchiness_preference", 0.1)],
+        "opt_medium": [("spice_preference", 0.1), ("crunchiness_preference", 0.2)],
+        "opt_spicy": [("spice_preference", 0.3), ("crunchiness_preference", 0.3)]
     },
     "q_adventure": {
-        "opt_familiar": [("adventure_level", -0.3)],
-        "opt_sometimes": [("adventure_level", 0.1)],
-        "opt_love_new": [("adventure_level", 0.4)]
+        "opt_familiar": [("masala_intensity_preference", -0.3)],
+        "opt_sometimes": [("masala_intensity_preference", 0.1)],
+        "opt_love_new": [("masala_intensity_preference", 0.4)]
     },
     "q_sauce": {
         "opt_rich_cheesy": [("creaminess_preference", 0.4), ("tanginess_preference", -0.1)],
         "opt_zesty_tangy": [("tanginess_preference", 0.4), ("creaminess_preference", -0.1)],
-        "opt_smoky_bbq": [("smokiness_preference", 0.3), ("tanginess_preference", 0.1)]
+        "opt_smoky_bbq": [("masala_intensity_preference", 0.3), ("tanginess_preference", 0.1)]
     },
     "q_crunch": {
-        "opt_not_really": [("crunch_preference", -0.3)],
-        "opt_okay": [("crunch_preference", 0.1)],
-        "opt_must_have": [("crunch_preference", 0.4)]
+        "opt_not_really": [("crunchiness_preference", -0.3)],
+        "opt_okay": [("crunchiness_preference", 0.1)],
+        "opt_must_have": [("crunchiness_preference", 0.4)]
     },
     "q_portion": {
-        "opt_light": [("portion_preference", -0.3)],
-        "opt_standard": [("portion_preference", 0.1)],
-        "opt_feast": [("portion_preference", 0.4)]
+        "opt_light": [("saltiness_preference", -0.3)],
+        "opt_standard": [("saltiness_preference", 0.1)],
+        "opt_feast": [("saltiness_preference", 0.4)]
     },
     "q_smoked": {
-        "opt_pass": [("smokiness_preference", -0.3)],
-        "opt_sounds_good": [("smokiness_preference", 0.1)],
-        "opt_need_it": [("smokiness_preference", 0.4)]
+        "opt_pass": [("oiliness_preference", -0.3)],
+        "opt_sounds_good": [("oiliness_preference", 0.1)],
+        "opt_need_it": [("oiliness_preference", 0.4)]
     }
 }
 
@@ -58,10 +58,10 @@ class TasteIdentityService:
             "sweetness_preference": BASELINE,
             "creaminess_preference": BASELINE,
             "tanginess_preference": BASELINE,
-            "smokiness_preference": BASELINE,
-            "crunch_preference": BASELINE,
-            "adventure_level": BASELINE,
-            "portion_preference": BASELINE,
+            "masala_intensity_preference": BASELINE,
+            "crunchiness_preference": BASELINE,
+            "oiliness_preference": BASELINE,
+            "saltiness_preference": BASELINE,
         }
         
         # Apply deltas based on answers

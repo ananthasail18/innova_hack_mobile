@@ -839,7 +839,7 @@ def seed():
                 creaminess_preference=random.uniform(0.1, 0.9),
                 tanginess_preference=random.uniform(0.1, 0.9),
                 masala_intensity_preference=random.uniform(0.1, 0.9),
-                crunch_preference=random.uniform(0.1, 0.9),
+                crunchiness_preference=random.uniform(0.1, 0.9),
                 oiliness_preference=random.uniform(0.1, 0.9),
                 saltiness_preference=random.uniform(0.1, 0.9),
                 confidence_score=random.uniform(0.7, 0.9)
