@@ -32,7 +32,7 @@ export function TasteDNADashboard() {
     { key: 'creaminess', label: 'Creaminess', val: profile.creaminess_preference, detail: dnaMatrix?.creaminess },
     { key: 'oiliness', label: 'Oiliness', val: profile.oiliness_preference, detail: dnaMatrix?.oiliness },
     { key: 'masala_intensity', label: 'Masala Intensity', val: profile.masala_intensity_preference, detail: dnaMatrix?.masala_intensity },
-    { key: 'crunchiness', label: 'Crunch', val: profile.crunch_preference, detail: dnaMatrix?.crunchiness },
+    { key: 'crunchiness', label: 'Crunch', val: profile.crunchiness_preference, detail: dnaMatrix?.crunchiness },
   ];
 
   const radarData = dimensionsList.map(d => ({

@@ -60,7 +60,7 @@ export const TasteShiftReplay: React.FC<TasteShiftReplayProps> = ({ event, decis
           </div>
         )}
 
-        {event.taste_shift_vector?.crunch_preference !== undefined && (
+        {event.taste_shift_vector?.crunchiness_preference !== undefined && (
           <div className="flex items-center justify-between text-xs">
             <span className="text-neutral-300 flex items-center gap-1.5 w-24">
               <Cookie className="w-3.5 h-3.5 text-yellow-600" /> Crunch
@@ -71,10 +71,10 @@ export const TasteShiftReplay: React.FC<TasteShiftReplayProps> = ({ event, decis
               </div>
               <ArrowRight className="w-3 h-3 text-neutral-500" />
               <div className="h-1.5 flex-1 bg-neutral-800 rounded-full overflow-hidden relative">
-                <div className="h-full bg-yellow-600 rounded-full shadow-[0_0_8px_rgba(202,138,4,0.8)]" style={{ width: `${event.taste_shift_vector.crunch_preference * 10}%` }}></div>
+                <div className="h-full bg-yellow-600 rounded-full shadow-[0_0_8px_rgba(202,138,4,0.8)]" style={{ width: `${event.taste_shift_vector.crunchiness_preference * 10}%` }}></div>
               </div>
             </div>
-            <span className="w-8 text-right font-bold text-yellow-500">+{event.taste_shift_vector.crunch_preference}</span>
+            <span className="w-8 text-right font-bold text-yellow-500">+{event.taste_shift_vector.crunchiness_preference}</span>
           </div>
         )}
       </div>
