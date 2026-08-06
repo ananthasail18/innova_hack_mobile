@@ -38,8 +38,10 @@ class GeminiProvider(AssistantProvider):
         max_tokens: int = 1000,
         response_format: Optional[Any] = None
     ) -> Dict[str, Any]:
+        from app.ai.providers.base import ProviderUnavailableError
         
         params = {
+            "model": self.model_name,
             "messages": messages,
             "temperature": temperature,
             "max_tokens": max_tokens,
@@ -47,74 +49,32 @@ class GeminiProvider(AssistantProvider):
         if tools:
             params["tools"] = tools
 
-        # Try primary model first, then fallback models if rate limited or quota exceeded
-        models_to_try = [self.model_name, "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-flash-8b"]
-
-        for model in models_to_try:
-            params["model"] = model
-            try:
-                if response_format:
-                    response = self.client.beta.chat.completions.parse(**params, response_format=response_format)
-                    return {"parsed": response.choices[0].message.parsed}
-                else:
-                    response = self.client.chat.completions.create(**params)
-                    choice = response.choices[0].message
-                    
-                    result = {
-                        "content": choice.content,
-                        "tool_calls": []
-                    }
-                    
-                    if choice.tool_calls:
-                        for tc in choice.tool_calls:
-                            result["tool_calls"].append({
-                                "id": tc.id,
-                                "function": {
-                                    "name": tc.function.name,
-                                    "arguments": tc.function.arguments
-                                }
-                            })
-                            
-                    return result
+        try:
+            if response_format:
+                response = self.client.beta.chat.completions.parse(**params, response_format=response_format)
+                return {"parsed": response.choices[0].message.parsed}
+            else:
+                response = self.client.chat.completions.create(**params)
+                choice = response.choices[0].message
                 
-            except Exception as e:
-                logger.warning(f"GeminiProvider model {model} attempt failed: {e}")
-                err_str = str(e).lower()
-                # If API key invalid or missing, inform developer immediately
-                if "api key" in err_str or "invalid_argument" in err_str or not self.api_key or self.api_key == "DUMMY_KEY_FOR_TESTS":
-                    return {
-                        "content": "👋 Hi! To enable the AI Dining Assistant, please create a `.env` file inside the `backend/` folder and add: `GEMINI_API_KEY=your_actual_api_key`. Once set, restart the backend server and I'll be ready to help!",
-                        "tool_calls": []
-                    }
-                # Continue loop to try next fallback model if rate limited (429 / resource_exhausted)
-                continue
-
-        # Smart Fallback Engine: Guarantee a valid, personalized response even if API quotas are exhausted
-        user_msg = ""
-        for m in reversed(messages):
-            if m.get("role") == "user":
-                user_msg = m.get("content", "").lower()
-                break
-
-        system_content = messages[0].get("content", "") if messages and messages[0].get("role") == "system" else ""
-
-        rec_text = ""
-        if "Top 5 Recommendations" in system_content:
-            try:
-                rec_part = system_content.split("Top 5 Recommendations:")[1].split("\n\n")[0]
-                rec_lines = [line.strip() for line in rec_part.split("\n") if line.strip()]
-                if rec_lines:
-                    rec_text = rec_lines[0]
-            except Exception:
-                pass
-
-        if rec_text:
-            fallback_msg = f"Based on your Taste DNA profile, I highly recommend trying: **{rec_text}**! It's one of our top matches for your preferences."
-        else:
-            fallback_msg = "Hello! Welcome to the restaurant. I am your TasteAI assistant. Based on your Taste DNA profile, feel free to explore our menu for personalized recommendations!"
-
-        return {
-            "content": fallback_msg,
-            "tool_calls": []
-        }
+                result = {
+                    "content": choice.content,
+                    "tool_calls": []
+                }
+                
+                if choice.tool_calls:
+                    for tc in choice.tool_calls:
+                        result["tool_calls"].append({
+                            "id": tc.id,
+                            "function": {
+                                "name": tc.function.name,
+                                "arguments": tc.function.arguments
+                            }
+                        })
+                        
+                return result
+            
+        except Exception as e:
+            logger.warning(f"GeminiProvider attempt failed: {e}")
+            raise ProviderUnavailableError(f"Gemini provider unavailable: {e}")
 

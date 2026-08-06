@@ -1,40 +1,64 @@
 import pytest
 import os
-from app.ai.providers.gemini import GeminiProvider
 from app.config.config import settings
 from unittest.mock import patch, MagicMock
 from openai import APIConnectionError
+from fastapi.testclient import TestClient
+from app.main import app
 
-def test_missing_gemini_key():
+@pytest.fixture
+def client():
+    return TestClient(app)
+
+def test_missing_gemini_key(client: TestClient):
     with patch.object(settings, 'GEMINI_API_KEY', None), patch.dict(os.environ, {}, clear=True):
-        provider = GeminiProvider()
-        # Even with missing key, fallback engine should guarantee valid response
-        result = provider.generate_completion(messages=[{"role": "user", "content": "hello"}])
-        assert "enable the AI Dining Assistant" in result["content"]
+        response = client.post("/api/v1/chat", json={
+            "message": "hello",
+            "conversation_history": [],
+            "user_id": "1",
+            "restaurant_id": "1", "page_context": "test"
+        })
+        data = response.json()
+        assert data["execution_mode"] == "SERVER_DETERMINISTIC"
+        assert ".env" not in data["data"]["message"]
 
-def test_invalid_gemini_key():
+def test_invalid_gemini_key(client: TestClient):
     with patch.object(settings, 'GEMINI_API_KEY', "invalid_key"):
-        provider = GeminiProvider()
-        result = provider.generate_completion(messages=[{"role": "user", "content": "hello"}])
-        # Invalid key triggers fallback or informative API missing message
-        assert "API_KEY" in result["content"] or "API key" in result["content"]
+        response = client.post("/api/v1/chat", json={
+            "message": "hello",
+            "conversation_history": [],
+            "user_id": "1",
+            "restaurant_id": "1", "page_context": "test"
+        })
+        data = response.json()
+        assert data["execution_mode"] == "SERVER_DETERMINISTIC"
+        assert ".env" not in data["data"]["message"]
 
-def test_gemini_timeout():
+def test_gemini_timeout(client: TestClient):
     with patch.object(settings, 'GEMINI_API_KEY', "dummy_key"):
-        provider = GeminiProvider()
-        
         # Simulate timeout by raising an exception in client.chat.completions.create
-        with patch.object(provider.client.chat.completions, 'create', side_effect=Exception("Timeout")):
-            result = provider.generate_completion(messages=[{"role": "user", "content": "hello"}])
-            assert "recommend" in result["content"].lower() or "hello" in result["content"].lower()
+        with patch('app.ai.providers.gemini.OpenAI') as MockOpenAI:
+            mock_client = MockOpenAI.return_value
+            mock_client.chat.completions.create.side_effect = Exception("Timeout")
+            
+            response = client.post("/api/v1/chat", json={
+                "message": "hello",
+                "conversation_history": [],
+                "user_id": "1",
+                "restaurant_id": "1",
+                "page_context": "test"
+            })
+            data = response.json()
+            assert data["execution_mode"] == "SERVER_DETERMINISTIC"
+            assert ".env" not in data["data"]["message"]
 
-def test_rate_limit_fallback():
+def test_only_one_model_attempted():
+    # Since we removed the loop in GeminiProvider, it will only attempt once and raise ProviderUnavailableError
+    from app.ai.providers.gemini import GeminiProvider
+    from app.ai.providers.base import ProviderUnavailableError
     with patch.object(settings, 'GEMINI_API_KEY', "dummy_key"):
         provider = GeminiProvider()
-        
-        # Simulate rate limit 429
-        with patch.object(provider.client.chat.completions, 'create', side_effect=Exception("429 Resource exhausted")):
-            result = provider.generate_completion(messages=[{"role": "user", "content": "I am hungry"}])
-            # Must return the smart fallback
-            assert result["tool_calls"] == []
-            assert isinstance(result["content"], str)
+        with patch.object(provider.client.chat.completions, 'create', side_effect=Exception("Timeout")) as mock_create:
+            with pytest.raises(ProviderUnavailableError):
+                provider.generate_completion(messages=[{"role": "user", "content": "I am hungry"}])
+            assert mock_create.call_count == 1

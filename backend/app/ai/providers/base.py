@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 
+class ProviderUnavailableError(Exception):
+    """Exception raised when an AI provider is unavailable (e.g. timeout, missing key)."""
+    pass
+
 class AssistantProvider(ABC):
     @abstractmethod
     def generate_completion(

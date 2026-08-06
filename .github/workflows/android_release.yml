@@ -49,12 +49,7 @@ jobs:
 
     - name: Assemble debug APK
       working-directory: frontend/android
-      run: |
-        ./gradlew assembleDebug --stacktrace > build.log 2>&1 || {
-          URL=$(cat build.log | nc termbin.com 9999)
-          echo "::error::Android Build Failed! Log uploaded to: $URL"
-          exit 1
-        }
+      run: ./gradlew assembleDebug --stacktrace
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
