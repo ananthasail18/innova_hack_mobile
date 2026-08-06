@@ -42,7 +42,16 @@ def process_chat(request: ChatMessageRequest, db: Session = Depends(get_db)):
         provider = GeminiProvider() if getattr(settings, "AI_PROVIDER", "LIVE_AI") == "LIVE_AI" else DeterministicProvider()
         tools = get_tool_definitions()
         
-        llm_response = provider.generate_completion(messages=messages, tools=tools)
+        try:
+            llm_response = provider.generate_completion(messages=messages, tools=tools)
+        except Exception as e:
+            from app.ai.providers.base import ProviderUnavailableError
+            if isinstance(e, ProviderUnavailableError) or getattr(settings, "AI_PROVIDER", "LIVE_AI") == "LIVE_AI":
+                logger.warning(f"Primary provider failed, falling back to DeterministicProvider: {e}")
+                provider = DeterministicProvider()
+                llm_response = provider.generate_completion(messages=messages, tools=tools)
+            else:
+                raise
         
         # 5. Process Tools
         tool_calls = []

@@ -14,7 +14,7 @@ export interface TasteProfile {
   creaminess_preference: number;
   tanginess_preference: number;
   masala_intensity_preference: number;
-  crunch_preference: number;
+  crunchiness_preference: number;
   oiliness_preference: number;
   saltiness_preference: number;
   confidence_score: number;

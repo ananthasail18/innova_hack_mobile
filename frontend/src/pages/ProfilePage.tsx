@@ -30,7 +30,7 @@ export function ProfilePage() {
     { label: 'creaminess', value: profile.creaminess_preference },
     { label: 'oiliness', value: profile.oiliness_preference },
     { label: 'masala_intensity', value: profile.masala_intensity_preference },
-    { label: 'crunch', value: profile.crunch_preference },
+    { label: 'crunch', value: profile.crunchiness_preference },
   ];
 
   return (

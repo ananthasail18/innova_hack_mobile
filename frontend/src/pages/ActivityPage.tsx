@@ -14,7 +14,7 @@ export const ActivityPage: React.FC = () => {
         created_at: new Date().toISOString(),
         taste_shift_vector: {
           spice_preference: 1.2,
-          crunch_preference: 0.5
+          crunchiness_preference: 0.5
         }
       },
       decision: {
